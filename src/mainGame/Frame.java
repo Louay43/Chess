@@ -1,4 +1,7 @@
-import javax.swing.*;
+package mainGame;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+
 
 
 public class Frame {
@@ -11,10 +14,11 @@ public class Frame {
 		frame.setIconImage(new ImageIcon("./PiecesImg/pawn1.png").getImage());
 		frame.setResizable(false);
 		
-		frame.setSize(800, 800);		//80x80 with each piece 10x10
+		frame.setSize(800, 800);		//800x800 with each piece 100x100
 		frame.setLocationRelativeTo(null);
-
-		frame.add(new Board());
+		
+		Board board = new Board();
+		frame.add(board);
 		frame.pack();
 		frame.setVisible(true);
 	}
