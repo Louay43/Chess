@@ -4,7 +4,11 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import pieces.*;
+import java.awt.Component;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 @SuppressWarnings("serial")
 public class Board extends JPanel{
@@ -51,6 +55,23 @@ public class Board extends JPanel{
         for(Piece piece : piecesOnBoard) {
         	this.add(piece);
         }
+        
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                Component clicked = getComponentAt(e.getPoint());
+
+                //If the user clicked on something that is NOT a JLabel, it must be the empty board
+                if (!(clicked instanceof JLabel)) {
+                    if (Piece.selectedPiece != null) {
+                        Piece.selectedPiece.removePreview();
+                        Piece.selectedPiece = null;
+                        repaint();
+                    }
+                }
+            }
+        });
+
 
     }
     
