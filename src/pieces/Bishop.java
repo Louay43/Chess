@@ -9,29 +9,29 @@ import javax.swing.JPanel;
 
 import mainGame.Board;
 
+
 @SuppressWarnings("serial")
 public class Bishop extends Piece{
 	public Bishop(int XCoordinate, int YCoordinate, String color) {
 		super(XCoordinate, YCoordinate, color);
 	}
-
-	@Override
-	public void showPreview() {
+	
+	public ArrayList<int[]> getPreviwIndex() {
 		JPanel parent = (JPanel) this.getParent();
 	    Board board = (Board) parent;
-
-	    ArrayList<JLabel> previews = new ArrayList<>();
-
+	    
+	    ArrayList<int[]> indexes = new ArrayList<int[]>();
+	    
 	    // === TOP RIGHT ===
 	    int y = this.getY() - 100;
 	    int x = this.getX() + 100;
 	    while (y >= 0 && x < board.getWidth()) {
 	        Piece occupying = board.getPieceAt(x, y);
 	        if (occupying == null) {
-	            previews.add(getPreview(x, y, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {x, y});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(x, y, WIDTH, HEIGHT)); // enemy piece: can capture
+	            	indexes.add(new int[] {x, y});
 	            }
 	            break; // stop either way after first encounter
 	        }
@@ -45,10 +45,10 @@ public class Bishop extends Piece{
 	    while (y >= 0 && x >= 0) {
 	        Piece occupying = board.getPieceAt(x, y);
 	        if (occupying == null) {
-	            previews.add(getPreview(x, y, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {x, y});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(x, y, WIDTH, HEIGHT)); // enemy piece: can capture
+	            	indexes.add(new int[] {x, y});
 	            }
 	            break; // stop either way after first encounter
 	        }
@@ -62,10 +62,10 @@ public class Bishop extends Piece{
 	    while (y < board.getHeight() && x < board.getWidth()) {
 	        Piece occupying = board.getPieceAt(x, y);
 	        if (occupying == null) {
-	            previews.add(getPreview(x, y, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {x, y});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(x, y, WIDTH, HEIGHT)); // enemy piece: can capture
+	            	indexes.add(new int[] {x, y});
 	            }
 	            break; // stop either way after first encounter
 	        }
@@ -79,17 +79,37 @@ public class Bishop extends Piece{
 	    while (y < board.getHeight() && x >= 0) {
 	        Piece occupying = board.getPieceAt(x, y);
 	        if (occupying == null) {
-	            previews.add(getPreview(x, y, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {x, y});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(x, y, WIDTH, HEIGHT)); // enemy piece: can capture
+	            	indexes.add(new int[] {x, y});
 	            }
 	            break; // stop either way after first encounter
 	        }
 	        y += 100;
 	        x -=100;
 	    }
+	    
+	    return indexes;
+	}
 
+	
+	@Override
+	public void showPreview() {
+		JPanel parent = (JPanel) this.getParent();
+	    Board board = (Board) parent;
+
+	    ArrayList<JLabel> previews = new ArrayList<>();
+
+	    ArrayList<int[]> indexes = getPreviwIndex();
+	    for(int[] index : indexes) {
+    		previews.add(getPreview(index[0], index[1], WIDTH, HEIGHT));	    		    	
+	    }
+	    
+	    // remove out of bounds pieces
+ 		previews.removeIf(p -> p.getX() < 0 || p.getX() + p.getWidth() > board.getWidth() || p.getY() < 0 
+ 				|| p.getY() + p.getHeight() > board.getHeight());
+ 		
 	    // Transparent click-catcher
 	    ArrayList<JLabel> previewsClickCatcher = new ArrayList<>();
 	    for (JLabel preview : previews) {
@@ -104,13 +124,8 @@ public class Bishop extends Piece{
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     e.consume(); // Stop the click from hitting pieces
-
-                    if(board.getPieceAt(invisPreview.getX(), invisPreview.getY()) != null) {
-                    	eatPiece(board, board.getPieceAt(invisPreview.getX(), invisPreview.getY()));
-                    }
-                    currentPiece.move(invisPreview.getX(), invisPreview.getY(), invisPreview.getWidth(), invisPreview.getHeight());
-                    currentPiece.removePreview();
-                    updateBoard();
+                    
+                    currentPiece.simulateMovement(invisPreview, currentPiece, board);
                 }
             });
         }

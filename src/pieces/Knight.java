@@ -9,61 +9,75 @@ import javax.swing.JPanel;
 
 import mainGame.Board;
 
+
 @SuppressWarnings("serial")
 public class Knight extends Piece{
 	public Knight(int XCoordinate, int YCoordinate, String color) {
 		super(XCoordinate, YCoordinate, color);
 	}
-
+	
+	public ArrayList<int[]> getPreviwIndex() {
+		// the knight has 8 possible positions if x is incremented/decremented then y is incremented/decremented twice. and vice versa
+		ArrayList<int[]> indexes = new ArrayList<int[]>();
+	    // == X+ / Y-- ==
+	    int x = this.getX() + 100;
+	    int y = this.getY() - 200;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    // == X+ / Y++ ==
+	    x = this.getX() + 100;
+	    y = this.getY() + 200;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    // == X- / Y-- ==
+	    x = this.getX() - 100;
+	    y = this.getY() - 200;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    // == X- / Y++ ==
+	    x = this.getX() - 100;
+	    y = this.getY() + 200;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    // == X++ / Y+ ==
+	    x = this.getX() + 200;
+	    y = this.getY() + 100;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    // == X++ / Y- ==
+	    x = this.getX() + 200;
+	    y = this.getY() - 100;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	        
+	    // == X-- / Y+ ==
+	    x = this.getX() - 200;
+	    y = this.getY() + 100;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    // == X-- / Y- ==
+	    x = this.getX() - 200;
+	    y = this.getY() - 100;
+	    if(addPreviewIfPossible(x, y) != null) indexes.add(new int[] {x, y});
+	    
+	    return indexes;
+	}
+	
 	@Override
 	public void showPreview() {
 		JPanel parent = (JPanel) this.getParent();
 	    Board board = (Board) parent;
 
 	    ArrayList<JLabel> previews = new ArrayList<>();
-	    // the knight has 8 possible positions if x is incremented/decremented then y is incremented/decremented twice. and vice versa
 	    
-	    // == X+ / Y-- ==
-	    int x = this.getX() + 100;
-	    int y = this.getY() - 200;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
+	    ArrayList<int[]> indexes = getPreviwIndex();
+	    for(int[] index : indexes) {
+	    	previews.add(getPreview(index[0], index[1], WIDTH, HEIGHT));
+	    }
 	    
-	    // == X+ / Y++ ==
-	    x = this.getX() + 100;
-	    y = this.getY() + 200;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	    
-	    // == X- / Y-- ==
-	    x = this.getX() - 100;
-	    y = this.getY() - 200;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	    
-	    // == X- / Y++ ==
-	    x = this.getX() - 100;
-	    y = this.getY() + 200;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	    
-	    // == X++ / Y+ ==
-	    x = this.getX() + 200;
-	    y = this.getY() + 100;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	    
-	    // == X++ / Y- ==
-	    x = this.getX() + 200;
-	    y = this.getY() - 100;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	        
-	    // == X-- / Y+ ==
-	    x = this.getX() - 200;
-	    y = this.getY() + 100;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	    
-	    // == X-- / Y- ==
-	    x = this.getX() - 200;
-	    y = this.getY() - 100;
-	    if(addPreviewIfPossible(x, y) != null) previews.add(addPreviewIfPossible(x, y));
-	    
-	    
+	    // remove out of bounds pieces
+ 		previews.removeIf(p -> p.getX() < 0 || p.getX() + p.getWidth() > board.getWidth() || p.getY() < 0 
+ 				|| p.getY() + p.getHeight() > board.getHeight());
+ 		
 	    // Transparent click-catcher
 	    ArrayList<JLabel> previewsClickCatcher = new ArrayList<>();
 	    for (JLabel preview : previews) {
@@ -73,18 +87,14 @@ public class Knight extends Piece{
 	    
 	    Piece currentPiece = this;
         
-        for(JLabel invisPreview : previewsClickCatcher) {
+	    for(JLabel invisPreview : previewsClickCatcher) {
         	invisPreview.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    e.consume(); // Stop the click from hitting pieces
-
-                    if(board.getPieceAt(invisPreview.getX(), invisPreview.getY()) != null) {
-                    	eatPiece(board, board.getPieceAt(invisPreview.getX(), invisPreview.getY()));
-                    }
-                    currentPiece.move(invisPreview.getX(), invisPreview.getY(), invisPreview.getWidth(), invisPreview.getHeight());
-                    currentPiece.removePreview();
-                    updateBoard();
+                	e.consume(); // Stop the click from hitting pieces 
+                	
+                	currentPiece.simulateMovement(invisPreview, currentPiece, board);
+                	
                 }
             });
         }
@@ -112,10 +122,13 @@ public class Knight extends Piece{
 		if(x >= 0 && x < board.getWidth() && y >= 0 && y < board.getHeight()) {
 			Piece occupyingPiece = board.getPieceAt(x, y);
 			if(occupyingPiece == null || !occupyingPiece.color.equals(this.color)) {	
-				return getPreview(x, y, WIDTH, HEIGHT); // enemy piece: can capture
+				return getPreview(x, y, WIDTH, HEIGHT); 
 			}
 			return null;		
 		}
 		return null;
 	}
+	
+	
+	
 }

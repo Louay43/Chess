@@ -10,28 +10,30 @@ import javax.swing.JPanel;
 
 import mainGame.Board;
 
+
 @SuppressWarnings("serial")
 public class Rook extends Piece{
+	
+	public boolean hasMoved = false;
 	public Rook(int XCoordinate, int YCoordinate, String color) {
 		super(XCoordinate, YCoordinate, color);
 	}
-
-	@Override
-	public void showPreview() {
-	    JPanel parent = (JPanel) this.getParent();
+	
+	public ArrayList<int[]> getPreviwIndex() {
+		JPanel parent = (JPanel) this.getParent();
 	    Board board = (Board) parent;
-
-	    ArrayList<JLabel> previews = new ArrayList<>();
-
-	    // === VERTICAL UP ===
+	    
+	    ArrayList<int[]> indexes = new ArrayList<int[]>();
+	    
+		// === VERTICAL UP ===
 	    int y = this.getY() - 100;
 	    while (y >= 0) {
 	        Piece occupying = board.getPieceAt(XCoordinate, y);
 	        if (occupying == null) {
-	            previews.add(getPreview(XCoordinate, y, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {XCoordinate, y});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(XCoordinate, y, WIDTH, HEIGHT)); // enemy piece: can capture
+	            	indexes.add(new int[] {XCoordinate, y}); // enemy piece: can capture
 	            }
 	            break; // stop either way after first encounter
 	        }
@@ -43,11 +45,11 @@ public class Rook extends Piece{
 	    while (y < board.getHeight()) {
 	        Piece occupying = board.getPieceAt(XCoordinate, y);
 	        if (occupying == null) {
-	            previews.add(getPreview(XCoordinate, y, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {XCoordinate, y});
 	        } 
 	        else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(XCoordinate, y, WIDTH, HEIGHT));
+	            	indexes.add(new int[] {XCoordinate, y});
 	            }
 	            break;
 	        }
@@ -59,10 +61,10 @@ public class Rook extends Piece{
 	    while (x < board.getWidth()) {
 	        Piece occupying = board.getPieceAt(x, YCoordinate);
 	        if (occupying == null) {
-	            previews.add(getPreview(x, YCoordinate, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {x, YCoordinate});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(x, YCoordinate, WIDTH, HEIGHT));
+	            	indexes.add(new int[] {x, YCoordinate});
 	            }
 	            break;
 	        }
@@ -74,16 +76,36 @@ public class Rook extends Piece{
 	    while (x >= 0) {
 	        Piece occupying = board.getPieceAt(x, YCoordinate);
 	        if (occupying == null) {
-	            previews.add(getPreview(x, YCoordinate, WIDTH, HEIGHT));
+	        	indexes.add(new int[] {x, YCoordinate});
 	        } else {
 	            if (!occupying.color.equals(this.color)) {
-	                previews.add(getPreview(x, YCoordinate, WIDTH, HEIGHT));
+	            	indexes.add(new int[] {x, YCoordinate});
 	            }
 	            break;
 	        }
 	        x -= 100;
 	    }
+	    
+	    return indexes;
+	}
 
+	
+	@Override
+	public void showPreview() {
+	    JPanel parent = (JPanel) this.getParent();
+	    Board board = (Board) parent;
+
+	    ArrayList<JLabel> previews = new ArrayList<>();
+
+	    ArrayList<int[]> indexes = getPreviwIndex();
+	    for(int[] index : indexes) {
+	    	previews.add(getPreview(index[0], index[1], WIDTH, HEIGHT));
+	    }
+	    
+	    // remove out of bounds pieces
+ 		previews.removeIf(p -> p.getX() < 0 || p.getX() + p.getWidth() > board.getWidth() || p.getY() < 0 
+ 				|| p.getY() + p.getHeight() > board.getHeight());
+ 		
 	    // Transparent click-catcher
 	    ArrayList<JLabel> previewsClickCatcher = new ArrayList<>();
 	    for (JLabel preview : previews) {
@@ -97,14 +119,10 @@ public class Rook extends Piece{
         	invisPreview.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    e.consume(); // Stop the click from hitting pieces
-
-                    if(board.getPieceAt(invisPreview.getX(), invisPreview.getY()) != null) {
-                    	eatPiece(board, board.getPieceAt(invisPreview.getX(), invisPreview.getY()));
-                    }
-                    currentPiece.move(invisPreview.getX(), invisPreview.getY(), invisPreview.getWidth(), invisPreview.getHeight());
-                    currentPiece.removePreview();
-                    updateBoard();
+                	e.consume(); // Stop the click from hitting pieces 
+                	
+                	currentPiece.simulateMovement(invisPreview, currentPiece, board);
+                	
                 }
             });
         }
@@ -124,6 +142,6 @@ public class Rook extends Piece{
 
 	    updateBoard();
 	}
+	
 
 }
-

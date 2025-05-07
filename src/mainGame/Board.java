@@ -1,6 +1,7 @@
 package mainGame;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import pieces.*;
@@ -35,21 +36,49 @@ public class Board extends JPanel{
 	Pawn Bpawn8 = new Pawn(700, 100, "black");	Rook Brook2 = new Rook(700, 0, "black");
 	
 	public ArrayList<Piece> piecesOnBoard = new ArrayList<>();
-	
+	private JLabel checkLabel = new JLabel("Check!");
+
 	
 	
     public Board() {
         this.setPreferredSize(new Dimension(800, 800));
         this.setLayout(null);
         
-        piecesOnBoard.add(Wpawn1);	piecesOnBoard.add(Bpawn1); 		 piecesOnBoard.add(Wrook1);		piecesOnBoard.add(Brook1);     
-        piecesOnBoard.add(Wpawn2);	piecesOnBoard.add(Bpawn2);		 piecesOnBoard.add(Wknight1);	piecesOnBoard.add(Bknight1);   
-        piecesOnBoard.add(Wpawn3);	piecesOnBoard.add(Bpawn3);       piecesOnBoard.add(Wbishop1);    piecesOnBoard.add(Bbishop1);   
-        piecesOnBoard.add(Wpawn4);	piecesOnBoard.add(Bpawn4);       piecesOnBoard.add(Wking);		piecesOnBoard.add(Bking);      
-        piecesOnBoard.add(Wpawn5);	piecesOnBoard.add(Bpawn5);       piecesOnBoard.add(Wqueen);		piecesOnBoard.add(Bqueen);     
-        piecesOnBoard.add(Wpawn6);	piecesOnBoard.add(Bpawn6);       piecesOnBoard.add(Wrook2);		piecesOnBoard.add(Brook2);     
-        piecesOnBoard.add(Wpawn7);	piecesOnBoard.add(Bpawn7);       piecesOnBoard.add(Wknight2);	piecesOnBoard.add(Bknight2);   
-        piecesOnBoard.add(Wpawn8);	piecesOnBoard.add(Bpawn8);       piecesOnBoard.add(Wbishop2); 	piecesOnBoard.add(Bbishop2);   
+        checkLabel.setBounds(350, 350, 100, 50); // center-ish
+        checkLabel.setForeground(Color.DARK_GRAY);
+        checkLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        checkLabel.setVisible(false);
+        this.add(checkLabel);
+
+        piecesOnBoard.add(Wpawn1);	piecesOnBoard.add(Bpawn1); 		
+        piecesOnBoard.add(Wpawn2);	piecesOnBoard.add(Bpawn2);		
+        piecesOnBoard.add(Wpawn3);	piecesOnBoard.add(Bpawn3);      
+        piecesOnBoard.add(Wpawn4);	piecesOnBoard.add(Bpawn4);      
+        piecesOnBoard.add(Wpawn5);	piecesOnBoard.add(Bpawn5);      
+        piecesOnBoard.add(Wpawn6);	piecesOnBoard.add(Bpawn6);      
+        piecesOnBoard.add(Wpawn7);	piecesOnBoard.add(Bpawn7);      
+        piecesOnBoard.add(Wpawn8);	piecesOnBoard.add(Bpawn8);      
+        
+        
+        
+        
+                                                                               
+         piecesOnBoard.add(Wrook1);		piecesOnBoard.add(Brook1);                
+         piecesOnBoard.add(Wknight1);	piecesOnBoard.add(Bknight1);             
+         piecesOnBoard.add(Wbishop1);   piecesOnBoard.add(Bbishop1);           
+         piecesOnBoard.add(Wking);		piecesOnBoard.add(Bking);                  
+         piecesOnBoard.add(Wqueen);		piecesOnBoard.add(Bqueen);                
+         piecesOnBoard.add(Wrook2);		piecesOnBoard.add(Brook2);                
+         piecesOnBoard.add(Wknight2);	piecesOnBoard.add(Bknight2);             
+         piecesOnBoard.add(Wbishop2); 	piecesOnBoard.add(Bbishop2);            
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+        
+        
+        
+        
         
         
         for(Piece piece : piecesOnBoard) {
@@ -111,7 +140,53 @@ public class Board extends JPanel{
 
     }
 
+    public void flipBoard() {
+        for (Piece piece : piecesOnBoard) {
+            int newX = 700 - piece.XCoordinate;
+            int newY = 700 - piece.YCoordinate;
+            piece.move(newX, newY, piece.WIDTH, piece.HEIGHT);
+        }
 
+        repaint();
+        revalidate();
+        return;
+    }
+    
+    
+    
+    public void showCheckMessage() {
+        checkLabel.setVisible(true);
+        this.repaint();
 
+        // Hide it after 1.5 seconds
+        new Thread(() -> {
+            try {
+                Thread.sleep(750);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            checkLabel.setVisible(false);
+            this.repaint();
+        }).start();
+    }
 
+    public void gameOver() {
+		 checkLabel.setBounds(200, 350, 500, 50);   // wider so text fits
+         checkLabel.setForeground(Color.black);
+         checkLabel.setText(Piece.currentTurn+" has been Check Mated!");
+         checkLabel.setVisible(true);
+         
+         new Thread(() -> {
+        	 try {
+                 Thread.sleep(1500);
+             } catch (InterruptedException e) {
+                 e.printStackTrace();
+             }
+             checkLabel.setVisible(false);
+             System.exit(0);
+             this.repaint();
+         }).start();
+         
+         
+    }
 }
