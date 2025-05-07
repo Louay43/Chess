@@ -21,6 +21,6 @@ public class Frame {
 		frame.pack();
 		frame.setVisible(true);
 	}
-
+	
 	
 }

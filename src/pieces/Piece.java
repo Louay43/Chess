@@ -39,10 +39,10 @@ public abstract class Piece extends JLabel implements MouseListener{
         
         // Draw the piece's image
         if (this.color.equalsIgnoreCase("white")) {
-        	this.setIcon(new ImageIcon("C:/Users/louay/Desktop/Eclipse workplace/Chess Testing/src/PiecesImg/" + getClass().getSimpleName() + ".png"));
+        	this.setIcon(new ImageIcon("./PiecesImg/" + getClass().getSimpleName() + ".png"));
         } 
         else {
-        	this.setIcon(new ImageIcon("C:/Users/louay/Desktop/Eclipse workplace/Chess Testing/src/PiecesImg/" + getClass().getSimpleName() + "1.png"));
+        	this.setIcon(new ImageIcon("./PiecesImg/" + getClass().getSimpleName() + "1.png"));
         }
         
        

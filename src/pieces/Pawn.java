@@ -1,9 +1,12 @@
 package pieces;
 
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -196,6 +199,11 @@ public class Pawn extends Piece {
 			// Swap turn
 			Piece.currentTurn = Piece.currentTurn.equals("white") ? "black" : "white";
 			
+			//if promotion
+			if(currentPiece.getY() == 0) {
+				this.promotion();
+			}
+			
 			if(isCheckmate(Piece.currentTurn, board)) {
 				board.gameOver();                 		
 			}
@@ -206,6 +214,83 @@ public class Pawn extends Piece {
 			
 		}
 		
+	}
+	
+
+	public void promotion() {
+	
+	    JPanel parent = (JPanel) this.getParent();
+	    Board  board  = (Board)  parent;
+	
+	    /* panel that holds the four promotion‑choices */
+	    JPanel promotionPanel = new JPanel(null);
+	    promotionPanel.setBackground(Color.LIGHT_GRAY);
+	    promotionPanel.setOpaque(true);          // transparent background
+	    promotionPanel.setBounds(200, 350, 400, 100);
+	
+	    promotionPanel.add(new ChoiceLabel(  0, "Queen",  this.color, board, promotionPanel));
+	    promotionPanel.add(new ChoiceLabel(100, "Bishop", this.color, board, promotionPanel));
+	    promotionPanel.add(new ChoiceLabel(200, "Knight", this.color, board, promotionPanel));
+	    promotionPanel.add(new ChoiceLabel(300, "Rook",   this.color, board, promotionPanel));
+	
+	    board.add(promotionPanel);
+	    board.setComponentZOrder(promotionPanel, 0);  // keep it on top
+	    board.revalidate();
+	    board.repaint();
+	}
+	
+
+	private class ChoiceLabel extends JLabel implements MouseListener {
+	
+	    private final String pieceName;
+	    private final String pieceColor;
+	    private final Board  board;
+	    private final JPanel chooser;          // the promotionPanel to remove
+	
+	    ChoiceLabel(int x, String name, String color, Board board, JPanel chooser) {
+	
+	        this.setBounds(x, 0, 100, 100);
+	        this.pieceName  = name;
+	        this.pieceColor = color;
+	        this.board      = board;
+	        this.chooser    = chooser;
+	        this.addMouseListener(this);
+	
+	        String img = "./PiecesImg/" + name + (color.equals("white") ? "" : "1") + ".png";
+	        this.setIcon(new ImageIcon(img));
+	    }
+	
+	    @Override
+	    public void mouseClicked(MouseEvent e) {
+	
+	        
+	        board.remove(chooser);
+	
+	        
+	        board.piecesOnBoard.remove(Pawn.this);   
+	        board.remove(Pawn.this);                 
+	
+	        Piece promoted;
+	        switch (pieceName) {
+	            case "Queen"  -> promoted = new Queen (Pawn.this.XCoordinate, Pawn.this.YCoordinate, pieceColor);
+	            case "Rook"   -> promoted = new Rook  (Pawn.this.XCoordinate, Pawn.this.YCoordinate, pieceColor);
+	            case "Bishop" -> promoted = new Bishop(Pawn.this.XCoordinate, Pawn.this.YCoordinate, pieceColor);
+	            default       -> promoted = new Knight(Pawn.this.XCoordinate, Pawn.this.YCoordinate, pieceColor);
+	        }
+	
+	        board.add(promoted);
+	        board.piecesOnBoard.add(promoted);
+	
+	        
+	        board.revalidate();
+	        board.repaint();
+	    }
+	
+	   
+	    public void mousePressed (MouseEvent e) {}
+	    public void mouseReleased(MouseEvent e) {}
+	    public void mouseEntered (MouseEvent e) {}
+	    public void mouseExited  (MouseEvent e) {}
 	}
 
 }
